@@ -1,0 +1,1806 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0a0a0a">
+<title>Officers' Canteen — Digital Menu</title>
+<link rel="icon" type="image/png" href="img/image.png">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+<style>
+  :root{
+    --bg:#0a0a0b;
+    --bg-2:#111113;
+    --card:#17171a;
+    --card-2:#1e1e22;
+    --line:#2a2a30;
+    --gold:#d4af37;
+    --gold-2:#f5c542;
+    --gold-soft:rgba(212,175,55,.12);
+    --text:#f5f5f7;
+    --muted:#9a9aa3;
+    --danger:#ef4444;
+    --ok:#22c55e;
+  }
+  *{-webkit-tap-highlight-color:transparent}
+  html,body{background:var(--bg);color:var(--text);font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;overflow-x:hidden}
+  body{background:radial-gradient(1200px 600px at 10% -10%, rgba(212,175,55,.08), transparent 60%), radial-gradient(900px 500px at 110% 10%, rgba(212,175,55,.06), transparent 60%), var(--bg);min-height:100vh}
+  .gold{color:var(--gold)}
+  .bg-gold{background:var(--gold)}
+  .bg-card{background:var(--card)}
+  .bg-card-2{background:var(--card-2)}
+  .border-line{border-color:var(--line)}
+  .text-muted{color:var(--muted)}
+  .gold-grad{background:linear-gradient(135deg,#f5c542 0%,#d4af37 50%,#a8862a 100%)}
+  .gold-text{background:linear-gradient(135deg,#f5c542,#d4af37);-webkit-background-clip:text;background-clip:text;color:transparent}
+  .card{background:linear-gradient(180deg,var(--card) 0%,var(--card-2) 100%);border:1px solid var(--line);border-radius:18px}
+  .card-soft{background:var(--card);border:1px solid var(--line);border-radius:14px}
+  .chip{background:var(--card);border:1px solid var(--line);border-radius:999px}
+  .btn-gold{background:linear-gradient(135deg,#f5c542,#d4af37);color:#1a1a1a;font-weight:700;box-shadow:0 10px 30px -10px rgba(212,175,55,.5)}
+  .btn-gold:hover{filter:brightness(1.05)}
+  .btn-gold:active{transform:translateY(1px)}
+  .btn-ghost{background:var(--card);border:1px solid var(--line);color:var(--text)}
+  .btn-ghost:hover{border-color:var(--gold)}
+  .input{background:var(--bg-2);border:1px solid var(--line);color:var(--text);border-radius:12px;padding:12px 14px;width:100%;outline:none;transition:border-color .2s}
+  .input:focus{border-color:var(--gold)}
+  .scroll-x{overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none}
+  .scroll-x::-webkit-scrollbar{display:none}
+  .cat-btn{white-space:nowrap;padding:10px 18px;border-radius:999px;border:1px solid var(--line);background:var(--card);color:var(--text);font-weight:500;transition:all .2s;flex-shrink:0}
+  .cat-btn.active{background:linear-gradient(135deg,#f5c542,#d4af37);color:#1a1a1a;border-color:transparent;font-weight:700;box-shadow:0 8px 24px -8px rgba(212,175,55,.4)}
+  .product-card{transition:transform .25s ease, box-shadow .25s ease}
+  .product-card:hover{transform:translateY(-3px);box-shadow:0 20px 40px -20px rgba(0,0,0,.6), 0 0 0 1px rgba(212,175,55,.2)}
+  .modal-bg{background:rgba(0,0,0,.75);backdrop-filter:blur(8px)}
+  .qty-btn{width:42px;height:42px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:700;background:var(--card);border:1px solid var(--line);color:var(--text);transition:all .15s}
+  .qty-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .qty-btn:active{transform:scale(.95)}
+  .qty-val{min-width:42px;text-align:center;font-weight:700;font-size:18px}
+  .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:linear-gradient(135deg,#f5c542,#d4af37);color:#1a1a1a;padding:12px 24px;border-radius:999px;font-weight:700;box-shadow:0 20px 40px -10px rgba(212,175,55,.5);z-index:9999;transition:transform .3s ease;pointer-events:none}
+  .toast.show{transform:translateX(-50%) translateY(0)}
+  .badge-featured{position:absolute;top:10px;left:10px;background:linear-gradient(135deg,#f5c542,#d4af37);color:#1a1a1a;font-size:10px;font-weight:800;padding:4px 10px;border-radius:999px;letter-spacing:.5px;z-index:2}
+  .badge-unavail{position:absolute;top:10px;right:10px;background:rgba(239,68,68,.9);color:white;font-size:10px;font-weight:700;padding:4px 10px;border-radius:999px;z-index:2}
+  .img-box{aspect-ratio:1/1;background:linear-gradient(135deg,#1a1a1e,#0f0f12);border-radius:14px;overflow:hidden;display:flex;align-items:center;justify-content:center;position:relative}
+  .img-box img{width:100%;height:100%;object-fit:cover}
+  .logo-img{width:100%;height:100%;object-fit:cover;display:block}
+  .img-placeholder{font-size:48px;opacity:.4}
+  .tab-btn{padding:10px 16px;border-radius:10px;font-weight:600;color:var(--muted);transition:all .2s}
+  .tab-btn.active{background:var(--gold-soft);color:var(--gold)}
+  .admin-row{display:grid;grid-template-columns:56px 1fr auto auto auto;gap:12px;align-items:center;padding:12px;border-radius:12px;background:var(--card);border:1px solid var(--line)}
+  .admin-row:hover{border-color:rgba(212,175,55,.3)}
+  .admin-icon-btn{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--bg-2);border:1px solid var(--line);cursor:pointer;transition:all .2s}
+  .admin-icon-btn:hover{border-color:var(--gold);color:var(--gold)}
+  .admin-icon-btn.danger:hover{border-color:var(--danger);color:var(--danger)}
+  .switch{position:relative;width:44px;height:24px;background:var(--bg-2);border:1px solid var(--line);border-radius:999px;cursor:pointer;transition:all .2s}
+  .switch::after{content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--muted);transition:all .2s}
+  .switch.on{background:var(--gold-soft);border-color:var(--gold)}
+  .switch.on::after{left:22px;background:var(--gold)}
+  .fade-in{animation:fadeIn .3s ease}
+  @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+  .pulse-gold{animation:pulseGold 2s infinite}
+  @keyframes pulseGold{0%,100%{box-shadow:0 0 0 0 rgba(212,175,55,.4)}50%{box-shadow:0 0 0 12px rgba(212,175,55,0)}}
+  .shine{position:relative;overflow:hidden}
+  .shine::before{content:"";position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent);transition:left .6s}
+  .shine:hover::before{left:100%}
+  .qr-wrap{background:white;padding:16px;border-radius:16px;display:inline-block}
+  @media (max-width:640px){
+    .admin-row{grid-template-columns:48px 1fr auto auto}
+    .admin-row .hide-sm{display:none}
+  }
+  details > summary { list-style: none; cursor: pointer; }
+  details > summary::-webkit-details-marker { display: none; }
+  .accordion-arrow{transition:transform .2s}
+  details[open] .accordion-arrow{transform:rotate(180deg)}
+  @media (max-width:640px){
+    .cat-btn{padding:7px 12px;font-size:12px}
+    #categoryNav{gap:8px;padding-top:8px;padding-bottom:8px}
+    .tab-btn{padding:8px 12px;font-size:12px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ CUSTOMER APP ============ -->
+<div id="app">
+
+  <!-- HEADER -->
+  <header class="sticky top-0 z-40 backdrop-blur-xl bg-[rgba(10,10,11,.85)] border-b border-line">
+    <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+      <div id="headerLogo" class="w-10 h-10 rounded-xl gold-grad flex items-center justify-center text-black font-black text-lg shadow-lg overflow-hidden"></div>
+        <div>
+          <div id="headerName" class="font-bold text-sm leading-tight">Officers' Canteen</div>
+          <div class="text-[10px] text-muted uppercase tracking-wider">Digital Menu</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="openCalculator()" class="btn-gold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5">
+          <span>🧮</span><span class="hidden sm:inline">Calculate</span>
+          <span id="calcBadge" class="hidden bg-black text-white text-[10px] px-1.5 rounded-full font-bold">0</span>
+        </button>
+        <button onclick="scrollToMenu()" class="btn-ghost px-3 py-2 rounded-xl text-xs">Menu</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- HERO -->
+  <section class="max-w-5xl mx-auto px-4 pt-6 pb-4">
+    <div class="card p-6 sm:p-8 relative overflow-hidden">
+      <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full gold-grad opacity-10 blur-3xl"></div>
+      <div class="relative">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-xs gold font-bold tracking-widest uppercase">★ Welcome</span>
+        </div>
+        <h1 id="heroTitle" class="text-3xl sm:text-4xl font-black leading-tight mb-2">
+          Officers' <span class="gold-text">Canteen</span>
+        </h1>
+        <div class="flex flex-wrap gap-2 mt-5">
+          <div class="chip px-3 py-1.5 text-xs flex items-center gap-1.5"><span>🕐</span><span id="heroHours">Open Today</span></div>
+          <div class="chip px-3 py-1.5 text-xs flex items-center gap-1.5"><span>⭐</span><span id="heroCount">0 items</span></div>
+          <div class="chip px-3 py-1.5 text-xs flex items-center gap-1.5"><span>📱</span><span>MoMo Accepted</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SEARCH -->
+  <section class="max-w-5xl mx-auto px-4 pb-3">
+    <div class="relative">
+      <span class="absolute left-4 top-1/2 -translate-y-1/2 text-muted">🔍</span>
+      <input id="searchInput" type="text" placeholder="Search menu..." class="input pl-11" autocomplete="off" autocapitalize="off" spellcheck="false" oninput="handleSearch(this.value)">
+    </div>
+  </section>
+
+  <!-- CATEGORIES -->
+  <section class="max-w-5xl mx-auto px-4 sticky top-[60px] z-[60] bg-[rgba(10,10,11,.96)] backdrop-blur-xl border-b border-line shadow-[0_10px_30px_rgba(0,0,0,.35)]">
+    <div id="categoryNav" class="flex gap-2 scroll-x py-2 sm:py-3"></div>
+  </section>
+
+  <!-- MENU -->
+  <section id="menuSection" class="max-w-5xl mx-auto px-4 pb-24">
+    <div class="flex items-center justify-between mb-3">
+      <h2 id="menuTitle" class="text-lg font-bold">All Items</h2>
+      <span id="menuCount" class="text-xs text-muted">0 items</span>
+    </div>
+    <div id="menuGrid" class="space-y-6"></div>
+    <div id="emptyState" class="hidden text-center py-16">
+      <div class="text-5xl mb-3">🔍</div>
+      <div class="text-muted">No products found.</div>
+    </div>
+  </section>
+
+  <!-- PAYMENT INFO -->
+  <section class="max-w-5xl mx-auto px-4 pb-6">
+    <div class="card p-5">
+      <h3 class="font-bold mb-3 flex items-center gap-2"><span class="gold">💳</span> How to Pay</h3>
+      <ol class="space-y-2 text-sm text-muted">
+        <li class="flex gap-2"><span class="gold font-bold">1.</span><span>Use the calculator to select items and quantities.</span></li>
+        <li class="flex gap-2"><span class="gold font-bold">2.</span><span>Tap <b class="text-white">Calculate Total</b> to generate your MoMo code.</span></li>
+        <li class="flex gap-2"><span class="gold font-bold">3.</span><span>Dial the code and verify the recipient is <b class="gold">MINADEF</b>.</span></li>
+        <li class="flex gap-2"><span class="gold font-bold">4.</span><span>Only confirm payment when recipient matches.</span></li>
+        <li class="flex gap-2"><span class="gold font-bold">5.</span><span>Keep your payment confirmation.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section class="max-w-5xl mx-auto px-4 pb-10">
+    <div class="card p-5">
+      <h3 class="font-bold mb-3 flex items-center gap-2"><span class="gold">📞</span> Contact</h3>
+      <div class="grid sm:grid-cols-3 gap-2">
+        <a id="contactPhone" href="tel:" class="card-soft p-3 flex items-center gap-2 text-sm hover:border-[var(--gold)] transition">
+          <span class="text-lg">📞</span><span id="contactPhoneText">Phone</span>
+        </a>
+        <a id="contactWhatsapp" href="#" target="_blank" class="card-soft p-3 flex items-center gap-2 text-sm hover:border-[var(--gold)] transition">
+          <span class="text-lg">💬</span><span>WhatsApp</span>
+        </a>
+        <a id="contactEmail" href="mailto:" class="card-soft p-3 flex items-center gap-2 text-sm hover:border-[var(--gold)] transition">
+          <span class="text-lg">✉️</span><span id="contactEmailText">Email</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- FOOTER -->
+  <footer class="max-w-5xl mx-auto px-4 pb-10 text-center">
+    <div id="footerText" class="text-xs text-muted">© 2026 kwizera. Web created by kwizera. Help line 0781845528</div>
+    <button onclick="openAdmin()" class="mt-3 text-[10px] text-muted/40 hover:text-muted">Admin</button>
+  </footer>
+</div>
+
+<!-- ============ PRODUCT DETAIL MODAL ============ -->
+<div id="productModal" class="fixed inset-0 z-50 hidden modal-bg items-center justify-center p-4">
+  <div class="card max-w-md w-full max-h-[90vh] overflow-y-auto fade-in">
+    <div class="relative">
+      <div id="pmImage" class="img-box rounded-t-[18px] aspect-square"></div>
+      <button onclick="closeProductModal()" class="absolute top-3 right-3 w-9 h-9 rounded-full bg-black/70 text-white flex items-center justify-center">✕</button>
+      <div id="pmFeaturedBadge" class="badge-featured hidden">⭐ FEATURED</div>
+    </div>
+    <div class="p-5">
+      <div id="pmCategory" class="text-xs gold font-bold tracking-wider uppercase mb-1"></div>
+      <h3 id="pmName" class="text-xl font-black mb-2"></h3>
+      <p id="pmDesc" class="text-sm text-muted mb-4"></p>
+      <div class="flex items-center justify-between">
+        <div>
+          <div class="text-xs text-muted">Price</div>
+          <div id="pmPrice" class="text-2xl font-black gold"></div>
+        </div>
+        <div id="pmAvail" class="chip px-3 py-1.5 text-xs font-bold"></div>
+      </div>
+      <div class="card-soft p-4 mt-4">
+        <div class="text-xs text-muted uppercase tracking-wider mb-2">Payment Info</div>
+        <div class="grid grid-cols-1 gap-2 text-sm">
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-muted">Merchant</span>
+            <span id="pmMerchant" class="font-mono font-bold text-white">9911119</span>
+          </div>
+          <div class="flex items-start justify-between gap-3">
+            <span class="text-muted pt-1">Code</span>
+            <span id="pmCode" class="font-mono font-bold text-white break-all text-right flex-1">*182*8*1*9911119*</span>
+          </div>
+          <div class="flex items-center justify-between gap-3">
+            <span class="text-muted">Recipient</span>
+            <span id="pmRecipient" class="font-bold gold">MINADEF</span>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2 mt-4">
+          <button onclick="copyProductCode()" class="btn-gold py-2.5 rounded-lg text-sm">📋 Copy Code</button>
+          <button onclick="copyProductMerchant()" class="btn-ghost py-2.5 rounded-lg text-sm">📋 Copy Merchant</button>
+        </div>
+      </div>
+      <button id="pmAddBtn" onclick="addToCalcFromModal()" class="btn-gold w-full mt-4 py-3 rounded-xl">
+        Add to Calculator
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CALCULATOR MODAL ============ -->
+<div id="calcModal" class="fixed inset-0 z-50 hidden modal-bg">
+  <div class="h-full flex flex-col max-w-2xl mx-auto bg-[var(--bg)]">
+    <!-- Calc Header -->
+    <div class="sticky top-0 bg-[var(--bg)] border-b border-line px-4 py-3 flex items-center justify-between z-10">
+      <div>
+        <div class="text-xs text-muted uppercase tracking-wider">Payment Calculator</div>
+        <div class="font-black text-lg">🧮 Calculate Your Bill</div>
+      </div>
+      <button onclick="closeCalculator()" class="w-10 h-10 rounded-full bg-card border border-line flex items-center justify-center">✕</button>
+    </div>
+
+    <!-- Calc Body -->
+    <div class="flex-1 overflow-y-auto px-4 py-4">
+      <!-- Summary -->
+      <div id="calcSummary" class="card p-4 mb-4">
+        <div class="flex items-center justify-between mb-2">
+          <div class="text-xs text-muted uppercase tracking-wider">Current Total</div>
+          <button onclick="clearCalc()" class="text-xs text-muted hover:text-[var(--danger)]">Clear all</button>
+        </div>
+        <div id="calcItems" class="space-y-1 mb-3 max-h-32 overflow-y-auto"></div>
+        <div class="border-t border-line pt-3 flex items-center justify-between">
+          <div class="text-sm text-muted">Total</div>
+          <div id="calcTotal" class="text-2xl font-black gold">0 RWF</div>
+        </div>
+      </div>
+
+      <!-- Products by category -->
+      <div id="calcProducts"></div>
+    </div>
+
+    <!-- Calc Footer -->
+    <div class="sticky bottom-0 bg-[var(--bg)] border-t border-line p-4">
+      <button onclick="calculateTotal()" class="btn-gold w-full py-4 rounded-xl text-base pulse-gold">
+        🧮 CALCULATE TOTAL
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ PAYMENT RESULT MODAL ============ -->
+<div id="paymentModal" class="fixed inset-0 z-[60] hidden modal-bg items-center justify-center p-4">
+  <div class="card max-w-md w-full fade-in">
+    <div class="p-6 text-center">
+      <div class="text-xs gold font-bold tracking-widest uppercase mb-2">Total to Pay</div>
+      <div id="payAmount" class="text-5xl sm:text-6xl font-black gold-text mb-1">0 RWF</div>
+      <div class="text-xs text-muted mb-6">Rwandan Francs</div>
+
+      <div class="card-soft p-4 mb-4">
+        <div class="text-xs text-muted uppercase tracking-wider mb-2">📱 MoMo Payment Code</div>
+        <div id="payCode" class="font-mono text-lg sm:text-xl font-bold break-all bg-black/40 p-3 rounded-lg mb-3"></div>
+        <div class="grid grid-cols-2 gap-2">
+          <button onclick="copyCode()" class="btn-gold py-2.5 rounded-lg text-sm">📋 Copy Code</button>
+          <button onclick="copyAmount()" class="btn-ghost py-2.5 rounded-lg text-sm">📋 Copy Amount</button>
+        </div>
+      </div>
+
+      <!-- RECIPIENT WARNING -->
+      <div class="bg-red-500/10 border-2 border-red-500/50 rounded-xl p-4 mb-4 text-left">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-2xl">⚠️</span>
+          <div class="font-black text-red-400 text-sm uppercase tracking-wider">Check Recipient Before Paying</div>
+        </div>
+        <div class="text-xs text-muted mb-2">Recipient must be:</div>
+        <div class="text-2xl font-black gold mb-2" id="payRecipient">MINADEF</div>
+        <p class="text-xs text-muted leading-relaxed">
+          Before confirming your payment, check that the recipient name displayed by MoMo is <b class="text-white">MINADEF</b>. <span class="text-red-400 font-bold">Do not confirm the payment if the displayed recipient name is different.</span>
+        </p>
+      </div>
+
+      <button onclick="closePayment()" class="btn-ghost w-full py-3 rounded-xl text-sm">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ ADMIN LOGIN ============ -->
+<div id="adminLogin" class="fixed inset-0 z-[70] hidden modal-bg items-center justify-center p-4">
+  <div class="card max-w-sm w-full p-6 fade-in">
+    <div class="text-center mb-5">
+      <div class="w-14 h-14 rounded-2xl gold-grad mx-auto flex items-center justify-center text-black text-2xl font-black mb-3">🔐</div>
+      <h3 class="text-xl font-black">Admin Login</h3>
+      <p class="text-xs text-muted mt-1">Enter your admin password</p>
+    </div>
+    <input id="adminPass" type="password" placeholder="Password" class="input mb-3" onkeydown="if(event.key==='Enter')adminLoginSubmit()">
+    <button onclick="adminLoginSubmit()" class="btn-gold w-full py-3 rounded-xl">Login</button>
+    <button onclick="closeAdminLogin()" class="btn-ghost w-full py-3 rounded-xl mt-2 text-sm">Cancel</button>
+  </div>
+</div>
+
+<!-- ============ ADMIN DASHBOARD ============ -->
+<div id="adminApp" class="fixed inset-0 z-[65] hidden bg-[var(--bg)] overflow-y-auto">
+  <div class="max-w-5xl mx-auto">
+    <!-- Admin Header -->
+    <div class="sticky top-0 z-10 bg-[var(--bg)] border-b border-line px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl gold-grad flex items-center justify-center text-black font-black">⚙️</div>
+        <div>
+          <div class="font-bold text-sm">Admin Dashboard</div>
+          <div class="text-[10px] text-muted uppercase tracking-wider">Officers' Canteen</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2">
+        <button onclick="exportData()" class="btn-ghost px-3 py-2 rounded-xl text-xs">Export</button>
+        <input id="importFile" type="file" accept="application/json" class="hidden" onchange="importData(event)">
+        <button onclick="document.getElementById('importFile').click()" class="btn-ghost px-3 py-2 rounded-xl text-xs">Import</button>
+        <button onclick="showCustomerMenu()" class="btn-ghost px-3 py-2 rounded-xl text-xs">View Menu</button>
+        <button onclick="adminLogout()" class="btn-ghost px-3 py-2 rounded-xl text-xs">Logout</button>
+      </div>
+    </div>
+
+    <!-- Admin Tabs -->
+    <div class="px-4 pt-4 pb-2">
+      <div class="flex gap-1 scroll-x pb-1">
+        <button class="tab-btn active" data-tab="dashboard" onclick="switchAdminTab('dashboard')">📊 Dashboard</button>
+        <button class="tab-btn" data-tab="products" onclick="switchAdminTab('products')">🍽️ Products</button>
+        <button class="tab-btn" data-tab="categories" onclick="switchAdminTab('categories')">📁 Categories</button>
+        <button class="tab-btn" data-tab="restaurant" onclick="switchAdminTab('restaurant')">🏛️ Restaurant</button>
+        <button class="tab-btn" data-tab="payment" onclick="switchAdminTab('payment')">💳 Payment</button>
+        <button class="tab-btn" data-tab="qr" onclick="switchAdminTab('qr')">📱 QR Code</button>
+      </div>
+    </div>
+
+    <!-- Admin Content -->
+    <div class="px-4 pb-10">
+
+      <!-- DASHBOARD TAB -->
+      <div id="tab-dashboard" class="admin-tab">
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-5">
+          <div class="card p-4">
+            <div class="text-xs text-muted uppercase tracking-wider">Products</div>
+            <div id="statProducts" class="text-3xl font-black gold mt-1">0</div>
+          </div>
+          <div class="card p-4">
+            <div class="text-xs text-muted uppercase tracking-wider">Categories</div>
+            <div id="statCategories" class="text-3xl font-black gold mt-1">0</div>
+          </div>
+          <div class="card p-4">
+            <div class="text-xs text-muted uppercase tracking-wider">Featured</div>
+            <div id="statFeatured" class="text-3xl font-black gold mt-1">0</div>
+          </div>
+          <div class="card p-4">
+            <div class="text-xs text-muted uppercase tracking-wider">Available</div>
+            <div id="statAvailable" class="text-3xl font-black gold mt-1">0</div>
+          </div>
+        </div>
+
+        <div class="card p-5 mb-4">
+          <h3 class="font-bold mb-3">Quick Actions</h3>
+          <div class="grid grid-cols-2 gap-2">
+            <button onclick="switchAdminTab('products');openProductForm()" class="btn-ghost py-3 rounded-xl text-sm">+ Add Product</button>
+            <button onclick="switchAdminTab('categories');openCategoryForm()" class="btn-ghost py-3 rounded-xl text-sm">+ Add Category</button>
+            <button onclick="switchAdminTab('restaurant')" class="btn-ghost py-3 rounded-xl text-sm">Edit Restaurant</button>
+            <button onclick="switchAdminTab('payment')" class="btn-ghost py-3 rounded-xl text-sm">Payment Settings</button>
+          </div>
+        </div>
+
+        <div class="card p-5">
+          <h3 class="font-bold mb-3">Recent Products</h3>
+          <div id="recentProducts" class="space-y-2"></div>
+        </div>
+      </div>
+
+      <!-- PRODUCTS TAB -->
+      <div id="tab-products" class="admin-tab hidden">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold">Products</h3>
+          <button onclick="openProductForm()" class="btn-gold px-4 py-2 rounded-xl text-sm">+ Add Product</button>
+        </div>
+        <div class="mb-3">
+          <input id="adminProductSearch" type="text" placeholder="Search products..." class="input" oninput="renderAdminProducts()">
+        </div>
+        <div id="adminProductsList" class="space-y-2"></div>
+      </div>
+
+      <!-- CATEGORIES TAB -->
+      <div id="tab-categories" class="admin-tab hidden">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="font-bold">Categories</h3>
+          <button onclick="openCategoryForm()" class="btn-gold px-4 py-2 rounded-xl text-sm">+ Add Category</button>
+        </div>
+        <div id="adminCategoriesList" class="space-y-2"></div>
+      </div>
+
+      <!-- RESTAURANT TAB -->
+      <div id="tab-restaurant" class="admin-tab hidden">
+        <div class="card p-5">
+          <h3 class="font-bold mb-4">Restaurant Information</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Restaurant Name</label>
+              <input id="restName" type="text" class="input mt-1">
+            </div>
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Logo (text/emoji, 2 chars)</label>
+              <input id="restLogo" type="text" maxlength="3" class="input mt-1">
+            </div>
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Welcome Message</label>
+              <textarea id="restWelcome" rows="2" class="input mt-1"></textarea>
+            </div>
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs text-muted uppercase tracking-wider">Phone</label>
+                <input id="restPhone" type="tel" class="input mt-1">
+              </div>
+              <div>
+                <label class="text-xs text-muted uppercase tracking-wider">WhatsApp</label>
+                <input id="restWhatsapp" type="tel" class="input mt-1">
+              </div>
+            </div>
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Email</label>
+              <input id="restEmail" type="email" class="input mt-1">
+            </div>
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Footer Text</label>
+              <input id="restFooter" type="text" class="input mt-1">
+            </div>
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Admin Password</label>
+              <input id="restPassword" type="text" class="input mt-1">
+            </div>
+            <button onclick="saveRestaurant()" class="btn-gold w-full py-3 rounded-xl">Save Restaurant Info</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- PAYMENT TAB -->
+      <div id="tab-payment" class="admin-tab hidden">
+        <div class="card p-5">
+          <h3 class="font-bold mb-4">Payment Settings</h3>
+          <div class="space-y-3">
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Payment Method</label>
+              <input id="payMethod" type="text" class="input mt-1" value="Mobile Money">
+            </div>
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Merchant Code</label>
+              <input id="payMerchant" type="text" class="input mt-1 font-mono">
+              <div class="text-[10px] text-muted mt-1">Used in USSD code: *182*8*1*<b>MERCHANT</b>*AMOUNT#</div>
+            </div>
+            <div>
+              <label class="text-xs text-muted uppercase tracking-wider">Recipient Name (shown to customer)</label>
+              <input id="payRecipient" type="text" class="input mt-1">
+              <div class="text-[10px] text-muted mt-1">Customer must verify this name on their phone before confirming payment.</div>
+            </div>
+            <div class="bg-black/40 border border-line rounded-xl p-3">
+              <div class="text-xs text-muted mb-1">Preview USSD code format:</div>
+              <div id="payPreview" class="font-mono text-sm gold"></div>
+            </div>
+            <button onclick="savePayment()" class="btn-gold w-full py-3 rounded-xl">Save Payment Settings</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR TAB -->
+      <div id="tab-qr" class="admin-tab hidden">
+        <div class="card p-5 text-center">
+          <h3 class="font-bold mb-2">Customer Menu QR Code</h3>
+          <p class="text-xs text-muted mb-5">Print this QR code for tables, menus, posters, bar counters, and receipts.</p>
+          <div class="flex justify-center mb-4">
+            <div class="qr-wrap">
+              <div id="qrCode"></div>
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="text-xs text-muted uppercase tracking-wider">Menu URL</label>
+            <input id="qrUrl" type="text" class="input mt-1 text-center font-mono text-xs" onchange="renderQR()">
+          </div>
+          <button onclick="downloadQR()" class="btn-gold px-6 py-3 rounded-xl text-sm">⬇ Download QR Image</button>
+          <div class="text-[10px] text-muted mt-4">This QR code points to the customer menu only. It never links to the admin dashboard.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- ============ PRODUCT FORM MODAL ============ -->
+<div id="productFormModal" class="fixed inset-0 z-[80] hidden modal-bg items-center justify-center p-4">
+  <div class="card max-w-md w-full max-h-[90vh] overflow-y-auto fade-in">
+    <div class="sticky top-0 bg-[var(--card)] p-4 border-b border-line flex items-center justify-between rounded-t-[18px]">
+      <h3 id="pfTitle" class="font-bold">Add Product</h3>
+      <button onclick="closeProductForm()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center">✕</button>
+    </div>
+    <div class="p-5 space-y-3">
+      <input type="hidden" id="pfId">
+      <div>
+        <label class="text-xs text-muted uppercase tracking-wider">Product Name</label>
+        <input id="pfName" type="text" class="input mt-1">
+      </div>
+      <div>
+        <label class="text-xs text-muted uppercase tracking-wider">Category</label>
+        <select id="pfCategory" class="input mt-1"></select>
+      </div>
+      <div>
+        <label class="text-xs text-muted uppercase tracking-wider">Description</label>
+        <textarea id="pfDesc" rows="2" class="input mt-1"></textarea>
+      </div>
+      <div>
+        <label class="text-xs text-muted uppercase tracking-wider">Price (RWF)</label>
+        <input id="pfPrice" type="number" min="0" class="input mt-1 font-mono">
+      </div>
+      <div>
+        <label class="text-xs text-muted uppercase tracking-wider">Image</label>
+        <div class="mt-1">
+          <div id="pfImagePreview" class="img-box w-full aspect-video mb-2">
+            <span class="img-placeholder">📷</span>
+          </div>
+          <input id="pfImage" type="file" accept="image/jpeg,image/png,image/webp" class="hidden" onchange="handleImageUpload(event)">
+          <div class="flex gap-2">
+            <button onclick="document.getElementById('pfImage').click()" class="btn-ghost flex-1 py-2 rounded-lg text-xs">📷 Upload Image</button>
+            <button onclick="clearImage()" class="btn-ghost py-2 px-3 rounded-lg text-xs">✕</button>
+          </div>
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div class="card-soft p-3 flex items-center justify-between">
+          <span class="text-sm">Available</span>
+          <div id="pfAvail" class="switch on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <div class="card-soft p-3 flex items-center justify-between">
+          <span class="text-sm">Featured</span>
+          <div id="pfFeat" class="switch" onclick="this.classList.toggle('on')"></div>
+        </div>
+      </div>
+      <button onclick="saveProduct()" class="btn-gold w-full py-3 rounded-xl">Save Product</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ CATEGORY FORM MODAL ============ -->
+<div id="categoryFormModal" class="fixed inset-0 z-[80] hidden modal-bg items-center justify-center p-4">
+  <div class="card max-w-sm w-full fade-in">
+    <div class="p-5">
+      <div class="flex items-center justify-between mb-4">
+        <h3 id="cfTitle" class="font-bold">Add Category</h3>
+        <button onclick="closeCategoryForm()" class="w-8 h-8 rounded-full bg-black/40 flex items-center justify-center">✕</button>
+      </div>
+      <input type="hidden" id="cfId">
+      <div class="space-y-3">
+        <div>
+          <label class="text-xs text-muted uppercase tracking-wider">Category Name</label>
+          <input id="cfName" type="text" class="input mt-1">
+        </div>
+        <div>
+          <label class="text-xs text-muted uppercase tracking-wider">Icon (emoji)</label>
+          <input id="cfIcon" type="text" maxlength="2" class="input mt-1">
+        </div>
+        <div class="card-soft p-3 flex items-center justify-between">
+          <span class="text-sm">Active</span>
+          <div id="cfActive" class="switch on" onclick="this.classList.toggle('on')"></div>
+        </div>
+        <button onclick="saveCategory()" class="btn-gold w-full py-3 rounded-xl">Save Category</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ TOAST ============ -->
+<div id="toast" class="toast"></div>
+
+<script>
+/* =========================================================
+   DATABASE LAYER (localStorage-backed, structured like a real API)
+   Swap DB.* methods with fetch() calls to connect to a real backend.
+   ========================================================= */
+const DB = {
+  K: {
+    products: 'oc_products',
+    categories: 'oc_categories',
+    restaurant: 'oc_restaurant',
+    payment: 'oc_payment',
+    calc: 'oc_calc',
+    inited: 'oc_inited_v1'
+  },
+  get(k){ try{ return JSON.parse(localStorage.getItem(k)); }catch(e){ return null; } },
+  set(k,v){ localStorage.setItem(k, JSON.stringify(v)); },
+
+  applyImportedData(data){
+    if(Array.isArray(data?.categories)) this.saveCategories(data.categories);
+    if(Array.isArray(data?.products)) this.saveProducts(data.products);
+    if(data?.restaurant) this.saveRestaurant(data.restaurant);
+    if(data?.payment) this.savePayment(data.payment);
+    if(data?.calc) this.saveCalc(data.calc);
+  },
+
+  init(){
+    if(localStorage.getItem(this.K.inited)) return;
+    // Seed categories
+    const cats = [
+      {id:'c1', name:'Beer', icon:'🍺', order:1, active:true},
+      {id:'c2', name:'Spirits', icon:'🥃', order:2, active:true},
+      {id:'c3', name:'Soft Drinks', icon:'🥤', order:3, active:true},
+      {id:'c4', name:'Water & Juice', icon:'💧', order:4, active:true},
+      {id:'c5', name:'Energy', icon:'⚡', order:5, active:true},
+      {id:'c6', name:'Meals', icon:'🍽️', order:6, active:true},
+      {id:'c7', name:'Snacks', icon:'🥟', order:7, active:true},
+    ];
+    this.set(this.K.categories, cats);
+
+    // Seed products (from price.docx)
+    const prods = [
+      // Beer
+      {id:uid(), name:'Heineken', catId:'c1', desc:'Premium lager beer', price:1300, avail:true, feat:true, order:1, img:emojiImg('🍺')},
+      {id:uid(), name:'Amstel', catId:'c1', desc:'Crisp lager', price:1200, avail:true, feat:false, order:2, img:emojiImg('🍺')},
+      {id:uid(), name:'Mützig', catId:'c1', desc:' Rwandan premium lager', price:1100, avail:true, feat:true, order:3, img:emojiImg('🍺')},
+      {id:uid(), name:'Tusker', catId:'c1', desc:'Kenyan lager', price:1700, avail:true, feat:false, order:4, img:emojiImg('🍺')},
+      {id:uid(), name:'Bavaria', catId:'c1', desc:'Dutch non-alcoholic malt', price:2500, avail:true, feat:false, order:5, img:emojiImg('🍺')},
+      {id:uid(), name:'Bavaria 0.0', catId:'c1', desc:'Alcohol-free premium', price:2700, avail:true, feat:false, order:6, img:emojiImg('🍺')},
+      {id:uid(), name:'Skol Malt (Small)', catId:'c1', desc:'Malt beverage', price:1000, avail:true, feat:false, order:7, img:emojiImg('🍺')},
+      {id:uid(), name:'Skol Malt (Big)', catId:'c1', desc:'Malt beverage large', price:1700, avail:true, feat:false, order:8, img:emojiImg('🍺')},
+      {id:uid(), name:'Skol Pulse', catId:'c1', desc:'Flavored malt', price:600, avail:true, feat:false, order:9, img:emojiImg('🍺')},
+      {id:uid(), name:'Panaché', catId:'c1', desc:'Shandy beer-lemon', price:600, avail:true, feat:true, order:10, img:emojiImg('🍺')},
+      {id:uid(), name:'Primus', catId:'c1', desc:'Iconic Rwandan lager', price:1600, avail:true, feat:true, order:11, img:emojiImg('🍺')},
+      {id:uid(), name:'Leffe', catId:'c1', desc:'Belgian abbey ale', price:3300, avail:true, feat:false, order:12, img:emojiImg('🍺')},
+      {id:uid(), name:'Exe', catId:'c1', desc:'Premium beer', price:2700, avail:true, feat:false, order:13, img:emojiImg('🍺')},
+      {id:uid(), name:'Goldenberg', catId:'c1', desc:'Premium lager', price:1500, avail:true, feat:false, order:14, img:emojiImg('🍺')},
+      {id:uid(), name:'Pinta Negra 0.5L', catId:'c1', desc:'Dark beer half liter', price:5000, avail:true, feat:false, order:15, img:emojiImg('🍺')},
+      {id:uid(), name:'Pinta Negra 1L', catId:'c1', desc:'Dark beer one liter', price:13500, avail:true, feat:false, order:16, img:emojiImg('🍺')},
+
+      // Spirits
+      {id:uid(), name:'Jack Daniel\'s', catId:'c2', desc:'Tennessee whiskey', price:65000, avail:true, feat:true, order:1, img:emojiImg('🥃')},
+      {id:uid(), name:'Johnnie Walker Black', catId:'c2', desc:'Blended scotch whisky', price:70000, avail:true, feat:true, order:2, img:emojiImg('🥃')},
+      {id:uid(), name:'Johnnie Walker Double Black', catId:'c2', desc:'Intense blended scotch', price:95000, avail:true, feat:false, order:3, img:emojiImg('🥃')},
+      {id:uid(), name:'Johnnie Walker Red Label', catId:'c2', desc:'Blended scotch', price:28000, avail:true, feat:false, order:4, img:emojiImg('🥃')},
+      {id:uid(), name:'Jameson', catId:'c2', desc:'Irish whiskey', price:50000, avail:true, feat:false, order:5, img:emojiImg('🥃')},
+      {id:uid(), name:'Smirnoff', catId:'c2', desc:'Vodka', price:2500, avail:true, feat:false, order:6, img:emojiImg('🍸')},
+      {id:uid(), name:'Tequila', catId:'c2', desc:'Mexican spirit', price:35000, avail:true, feat:false, order:7, img:emojiImg('🍸')},
+      {id:uid(), name:'Martini', catId:'c2', desc:'Italian vermouth', price:30000, avail:true, feat:false, order:8, img:emojiImg('🍸')},
+      {id:uid(), name:'Drostdy', catId:'c2', desc:'South African wine', price:5000, avail:true, feat:false, order:9, img:emojiImg('🍷')},
+
+      // Soft drinks
+      {id:uid(), name:'Fanta (Small)', catId:'c3', desc:'Orange soft drink', price:700, avail:true, feat:false, order:1, img:emojiImg('🥤')},
+      {id:uid(), name:'Fanta (Big)', catId:'c3', desc:'Orange soft drink large', price:2000, avail:true, feat:false, order:2, img:emojiImg('🥤')},
+      {id:uid(), name:'Pepsi', catId:'c3', desc:'Cola drink', price:700, avail:true, feat:false, order:3, img:emojiImg('🥤')},
+      {id:uid(), name:'Mirinda', catId:'c3', desc:'Orange soda', price:1000, avail:true, feat:false, order:4, img:emojiImg('🥤')},
+      {id:uid(), name:'Novida', catId:'c3', desc:'Fruit juice drink', price:1000, avail:true, feat:false, order:5, img:emojiImg('🧃')},
+
+      // Water & Juice
+      {id:uid(), name:'Water', catId:'c4', desc:'Bottled mineral water', price:500, avail:true, feat:false, order:1, img:emojiImg('💧')},
+      {id:uid(), name:'Agashya Juice', catId:'c4', desc:'Rwandan fruit juice', price:900, avail:true, feat:false, order:2, img:emojiImg('🧃')},
+      {id:uid(), name:'Inyange Juice', catId:'c4', desc:'Fresh fruit juice', price:900, avail:true, feat:false, order:3, img:emojiImg('🧃')},
+      {id:uid(), name:'Malt Juice', catId:'c4', desc:'Malt-based juice', price:1000, avail:true, feat:false, order:4, img:emojiImg('🧃')},
+
+      // Energy
+      {id:uid(), name:'Energy Drink', catId:'c5', desc:'Energy boost', price:600, avail:true, feat:false, order:1, img:emojiImg('⚡')},
+      {id:uid(), name:'Red Bull', catId:'c5', desc:'Premium energy drink', price:3000, avail:true, feat:true, order:2, img:emojiImg('⚡')},
+
+      // Meals
+      {id:uid(), name:'Brochette', catId:'c6', desc:'Grilled meat skewers', price:1000, avail:true, feat:true, order:1, img:emojiImg('🍢')},
+      {id:uid(), name:'Pingules', catId:'c6', desc:'Specialty dish', price:4500, avail:true, feat:false, order:2, img:emojiImg('🍛')},
+      {id:uid(), name:'Ubunyo Bwa', catId:'c6', desc:'Traditional side', price:1000, avail:true, feat:false, order:3, img:emojiImg('🍲')},
+
+      // Snacks
+      {id:uid(), name:'Chapati', catId:'c7', desc:'Flatbread', price:300, avail:true, feat:false, order:1, img:emojiImg('🫓')},
+      {id:uid(), name:'Sambusa (Meat)', catId:'c7', desc:'Irimo inyama — meat filled', price:500, avail:true, feat:false, order:2, img:emojiImg('🥟')},
+      {id:uid(), name:'Sambusa (Potato)', catId:'c7', desc:'Y\'ibirayi — potato filled', price:300, avail:true, feat:false, order:3, img:emojiImg('🥟')},
+      {id:uid(), name:'Ikirayi', catId:'c7', desc:'Fried potatoes', price:400, avail:true, feat:false, order:4, img:emojiImg('🍟')},
+      {id:uid(), name:'Cookies', catId:'c7', desc:'Assorted cookies', price:900, avail:true, feat:false, order:5, img:emojiImg('🍪')},
+
+      {id:uid(), name:'Smoothie', catId:'c5', desc:'Fresh fruit blend', price:1400, avail:true, feat:false, order:3, img:emojiImg('🥤')}
+    ];
+    this.set(this.K.products, prods);
+
+    // Seed restaurant
+    this.set(this.K.restaurant, {
+      name: "Officers' Canteen",
+      logo: "OC",
+      welcome: "",
+      phone: "+250788000000",
+      whatsapp: "+250788000000",
+      email: "info@officerscanteen.rw",
+      footer: "© 2026 kwizera. Web created by kwizera. Help line 0781845528",
+      password: "kwizera2026"
+    });
+
+    // Seed payment
+    this.set(this.K.payment, {
+      method: "Mobile Money",
+      merchant: "9911119",
+      recipient: "MINADEF"
+    });
+
+    this.set(this.K.calc, {});
+    localStorage.setItem(this.K.inited, '1');
+  },
+
+  // Products
+  getProducts(){ return this.get(this.K.products) || []; },
+  saveProducts(p){ this.set(this.K.products, p); },
+  // Categories
+  getCategories(){ return this.get(this.K.categories) || []; },
+  saveCategories(c){ this.set(this.K.categories, c); },
+  // Restaurant
+  getRestaurant(){ return this.get(this.K.restaurant) || {}; },
+  saveRestaurant(r){ this.set(this.K.restaurant, r); },
+  // Payment
+  getPayment(){ return this.get(this.K.payment) || {method:'Mobile Money', merchant:'9911119', recipient:'MINADEF'}; },
+  savePayment(p){ this.set(this.K.payment, p); },
+  // Calculator state
+  getCalc(){ return this.get(this.K.calc) || {}; },
+  saveCalc(c){ this.set(this.K.calc, c); }
+};
+
+async function loadMenuDataFile(){
+  try{
+    const res = await fetch('menu.json', { cache: 'no-store' });
+    if(!res.ok) return false;
+    const data = await res.json();
+    if(data && (Array.isArray(data.products) || Array.isArray(data.categories) || data.restaurant || data.payment)){
+      DB.applyImportedData(data);
+      localStorage.setItem(DB.K.inited, '1');
+      return true;
+    }
+  }catch(e){
+    // Fall back to seeded defaults if the file is missing or unavailable.
+  }
+  return false;
+}
+
+function uid(){ return 'p_' + Math.random().toString(36).slice(2,10) + Date.now().toString(36); }
+function emojiImg(e){ return 'data:image/svg+xml;utf8,' + encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%2317171a'/><text x='50' y='62' font-size='50' text-anchor='middle'>${e}</text></svg>`); }
+const PRODUCT_IMAGE_MAP = {
+  'heineken':'img/heineken.jpeg',
+  'amstel':'img/amstel.jpeg',
+  'mützig':'img/Mutzig_Bottle.jpg',
+  'mutzig':'img/Mutzig_Bottle.jpg',
+  'tusker':'img/tusker.jpeg',
+  'bavaria':'img/bavaria.jpeg',
+  'bavaria 0.0':'img/bavaria.webp',
+  'skol malt (small)':'img/skoll-malk smal.webp',
+  'skol malt (big)':'img/skol big.jpg',
+  'skol pulse':'img/skol pulse.jpg',
+  'panaché':'img/panache.jpeg',
+  'primus':'img/primus.jpg',
+  'leffe':'img/leffe.jpeg',
+  'exe':'img/exo.jpeg',
+  'goldenberg':'img/golden berge.jpeg',
+  'pinta negra 0.5l':'img/Pinta-Negra-Red-Wine-5L.webp',
+  'pinta negra 1l':'img/Pinta-Negra-Red-Wine-5L.webp',
+  'jack daniel\'s':'img/jack daniel.jpeg',
+  'johnnie walker black':'img/black lebel.jpeg',
+  'johnnie walker double black':'img/double black.jpeg',
+  'johnnie walker red label':'img/red rebel.jpeg',
+  'jameson':'img/jamerson.webp',
+  'smirnoff':'img/Smirnoff-Guarana-Can.webp',
+  'tequila':'img/tequila.jpg',
+  'martini':'img/martini.jpg',
+  'drostdy':'img/Drostdy-Hof-Claret-Red-wine.webp',
+  'fanta (small)':'img/small fanta.png',
+  'fanta (big)':'img/big fanta2.webp',
+  'pepsi':'img/pepsi.jpeg',
+  'mirinda':'img/small MIRINDA.webp',
+  'novida':'img/novida.png',
+  'water':'img/Inyange-Mineral-Water.webp',
+  'agashya juice':'img/agashya.jpeg',
+  'inyange juice':'img/Inyange-Juice.webp',
+  'malt juice':'img/malt juice.jpeg',
+  'energy drink':'img/redbull.jpeg',
+  'red bull':'img/redbull.jpeg',
+  'brochette':'img/brochette.jpg',
+  'pingules':'img/virunga gold.jpeg',
+  'ubunyo bwa':'img/ubunyobwa.webp',
+  'chapati':'img/capati.jpeg',
+  'sambusa (meat)':'img/sambusa.webp',
+  'sambusa (potato)':'img/sambusa.webp',
+  'ikirayi':'img/ikirayi.jpeg',
+  'cookies':'img/cookies.jpeg',
+  'smoothie':'img/smothie.webp'
+};
+function resolveProductImage(p){
+  const src = p?.img || '';
+  if(src && !src.startsWith('data:image/svg+xml')) return src;
+  const key = (p?.name || '').toLowerCase().trim();
+  return PRODUCT_IMAGE_MAP[key] || src || '';
+}
+function webFallbackImage(p){
+  const cat = (DB.getCategories().find(c=>c.id===p?.catId)?.name || '').toLowerCase();
+  const name = (p?.name || '').toLowerCase();
+  const query =
+    cat.includes('beer') || name.includes('beer') || name.includes('lager') ? 'beer bottle' :
+    cat.includes('spirits') || name.includes('whiskey') || name.includes('vodka') || name.includes('tequila') || name.includes('martini') ? 'whiskey bottle' :
+    cat.includes('soft') || name.includes('fanta') || name.includes('pepsi') || name.includes('mirinda') || name.includes('novida') ? 'soft drink' :
+    cat.includes('water') || name.includes('water') || name.includes('juice') ? 'juice bottle' :
+    cat.includes('energy') || name.includes('red bull') || name.includes('energy') ? 'energy drink can' :
+    cat.includes('snacks') || name.includes('chapati') || name.includes('sambusa') || name.includes('cookies') ? 'snack food' :
+    'restaurant food';
+  return `https://source.unsplash.com/featured/800x800/?${encodeURIComponent(query)}`;
+}
+function fmt(n){ return Number(n||0).toLocaleString('en-US'); }
+
+/* =========================================================
+   STATE
+   ========================================================= */
+const state = {
+  currentCategory: 'all',
+  search: '',
+  calc: {},
+  currentProduct: null,
+  adminAuth: false,
+  adminTab: 'dashboard'
+};
+
+/* =========================================================
+   CUSTOMER MENU RENDERING
+   ========================================================= */
+function renderAll(){
+  const searchInput = document.getElementById('searchInput');
+  if(searchInput && searchInput.value){
+    searchInput.value = '';
+  }
+  state.search = '';
+  renderHeader();
+  renderCategories();
+  renderMenu();
+  renderContact();
+  updateCalcBadge();
+}
+
+function renderHeader(){
+  const r = DB.getRestaurant();
+  document.getElementById('headerName').textContent = r.name || "Officers' Canteen";
+  document.getElementById('headerLogo').innerHTML = `<img class="logo-img" src="img/image.png" alt="${r.name || "Officers' Canteen"} logo">`;
+  document.getElementById('heroTitle').innerHTML = `${(r.name||"Officers' Canteen").split(' ')[0]} <span class="gold-text">${(r.name||"Officers' Canteen").split(' ').slice(1).join(' ') || 'Canteen'}</span>`;
+  document.getElementById('footerText').textContent = r.footer || '© 2026 kwizera. Web created by kwizera. Help line 0781845528';
+  const prods = DB.getProducts().filter(p=>p.avail);
+  document.getElementById('heroCount').textContent = prods.length + ' items';
+}
+
+function renderCategories(){
+  const cats = DB.getCategories().filter(c=>c.active).sort((a,b)=>a.order-b.order);
+  const nav = document.getElementById('categoryNav');
+  nav.innerHTML = '';
+  const allBtn = document.createElement('button');
+  allBtn.className = 'cat-btn' + (state.currentCategory==='all'?' active':'');
+  allBtn.innerHTML = '✨ All';
+  allBtn.onclick = ()=>{ state.currentCategory='all'; renderCategories(); renderMenu(); };
+  nav.appendChild(allBtn);
+  cats.forEach(c=>{
+    const b = document.createElement('button');
+    b.id = `catBtn-${c.id}`;
+    b.className = 'cat-btn' + (state.currentCategory===c.id?' active':'');
+    b.innerHTML = `${c.icon||''} ${c.name}`;
+    b.onclick = ()=>{ state.currentCategory=c.id; renderCategories(); renderMenu(); };
+    nav.appendChild(b);
+  });
+}
+
+function renderMenu(){
+  const grid = document.getElementById('menuGrid');
+  const empty = document.getElementById('emptyState');
+  const cats = DB.getCategories().filter(c=>c.active).sort((a,b)=>a.order-b.order);
+  const prods = DB.getProducts();
+  const q = state.search.toLowerCase().trim();
+  const catId = state.currentCategory;
+
+  const title = document.getElementById('menuTitle');
+  if(catId==='all') title.textContent = q ? `Results for "${q}"` : 'All Items';
+  else {
+    const c = cats.find(c=>c.id===catId);
+    title.textContent = c ? `${c.icon||''} ${c.name}` : 'Menu';
+  }
+
+  grid.innerHTML = '';
+  let totalCount = 0;
+
+  const buildSection = (cat, items) => {
+    const section = document.createElement('section');
+    section.className = 'space-y-3';
+    section.id = `cat-${cat.id}`;
+    section.dataset.catId = cat.id;
+    section.innerHTML = `
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm sm:text-base font-bold flex items-center gap-2">
+          <span>${cat.icon||''}</span><span>${cat.name}</span>
+        </h3>
+        <span class="text-[10px] text-muted">${items.length} items</span>
+      </div>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4"></div>
+    `;
+    const row = section.querySelector('div.grid');
+    items.forEach(p=>row.appendChild(buildProductCard(p)));
+    grid.appendChild(section);
+  };
+
+  if(catId === 'all'){
+    cats.forEach(cat=>{
+      let items = prods.filter(p=>p.catId===cat.id && p.avail);
+      if(q){
+        items = items.filter(p=>
+          p.name.toLowerCase().includes(q) ||
+          (p.desc||'').toLowerCase().includes(q) ||
+          cat.name.toLowerCase().includes(q)
+        );
+      }
+      items.sort((a,b)=>a.order-b.order);
+      if(items.length===0) return;
+      totalCount += items.length;
+      buildSection(cat, items);
+    });
+    document.getElementById('menuCount').textContent = totalCount + ' items';
+    if(totalCount===0) empty.classList.remove('hidden');
+    else empty.classList.add('hidden');
+    observeCategorySections();
+    return;
+  }
+
+  const cat = cats.find(c=>c.id===catId);
+  if(!cat){
+    document.getElementById('menuCount').textContent = '0 items';
+    empty.classList.remove('hidden');
+    return;
+  }
+  let items = prods.filter(p=>p.catId===catId && p.avail);
+  if(q){
+    items = items.filter(p=>
+      p.name.toLowerCase().includes(q) ||
+      (p.desc||'').toLowerCase().includes(q)
+    );
+  }
+  items.sort((a,b)=>a.order-b.order);
+  document.getElementById('menuCount').textContent = items.length + ' items';
+  if(items.length===0){
+    empty.classList.remove('hidden');
+    return;
+  }
+  empty.classList.add('hidden');
+  buildSection(cat, items);
+  observeCategorySections();
+}
+
+let categoryObserver = null;
+function observeCategorySections(){
+  if(categoryObserver) categoryObserver.disconnect();
+  const sections = [...document.querySelectorAll('#menuGrid section[data-cat-id]')];
+  if(sections.length===0) return;
+  categoryObserver = new IntersectionObserver(entries => {
+    const visible = entries
+      .filter(entry => entry.isIntersecting)
+      .sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+    if(!visible) return;
+    const catId = visible.target.dataset.catId;
+    if(!catId || state.currentCategory === catId) return;
+    state.currentCategory = catId;
+    syncActiveCategoryButton(catId);
+  }, {
+    root: null,
+    rootMargin: '-35% 0px -55% 0px',
+    threshold: [0.15, 0.3, 0.5, 0.75]
+  });
+  sections.forEach(section => categoryObserver.observe(section));
+}
+
+function syncActiveCategoryButton(catId){
+  document.querySelectorAll('.cat-btn').forEach(btn => btn.classList.remove('active'));
+  const activeBtn = document.getElementById(`catBtn-${catId}`);
+  if(activeBtn) activeBtn.classList.add('active');
+  const allBtn = document.querySelector('.cat-btn');
+  if(catId === 'all' && allBtn) allBtn.classList.add('active');
+}
+
+function buildProductCard(p){
+  const cats = DB.getCategories();
+  const cat = cats.find(c=>c.id===p.catId);
+  const el = document.createElement('div');
+  el.className = 'card product-card cursor-pointer overflow-hidden relative flex flex-col';
+  el.onclick = ()=>openProductModal(p.id);
+  el.innerHTML = `
+    ${p.feat?'<div class="badge-featured">⭐ FEATURED</div>':''}
+    ${!p.avail?'<div class="badge-unavail">UNAVAILABLE</div>':''}
+    <div class="img-box rounded-b-none">
+      ${resolveProductImage(p)
+        ? `<img src="${resolveProductImage(p)}" alt="${p.name}" loading="lazy" onerror="this.onerror=null;this.src='${webFallbackImage(p)}'">`
+        : `<img src="${webFallbackImage(p)}" alt="${p.name}" loading="lazy">`}
+    </div>
+    <div class="p-3 min-w-0">
+      <div class="text-[10px] gold font-bold uppercase tracking-wider">${cat?.name||''}</div>
+      <div class="font-bold text-sm sm:text-base mt-0.5 truncate">${p.name}</div>
+      <div class="text-[11px] sm:text-sm text-muted mt-1 line-clamp-2">${p.desc||''}</div>
+      <div class="flex items-center justify-between mt-2 gap-3">
+        <div class="gold font-black text-xs sm:text-sm">${fmt(p.price)} RWF</div>
+        <button class="text-[10px] btn-ghost px-2 py-1 rounded-lg flex-shrink-0">Details</button>
+      </div>
+    </div>
+  `;
+  return el;
+}
+
+function renderContact(){
+  const r = DB.getRestaurant();
+  const phone = document.getElementById('contactPhone');
+  const wa = document.getElementById('contactWhatsapp');
+  const em = document.getElementById('contactEmail');
+  phone.href = 'tel:' + (r.phone||'');
+  document.getElementById('contactPhoneText').textContent = r.phone || 'Phone';
+  wa.href = 'https://wa.me/' + (r.whatsapp||'').replace(/\D/g,'');
+  em.href = 'mailto:' + (r.email||'');
+  document.getElementById('contactEmailText').textContent = r.email || 'Email';
+}
+
+function handleSearch(v){
+  state.search = v;
+  renderMenu();
+}
+
+function scrollToMenu(){
+  document.getElementById('menuSection').scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+/* =========================================================
+   PRODUCT MODAL
+   ========================================================= */
+function openProductModal(id){
+  const p = DB.getProducts().find(x=>x.id===id);
+  if(!p) return;
+  state.currentProduct = p;
+  const cats = DB.getCategories();
+  const cat = cats.find(c=>c.id===p.catId);
+  const img = resolveProductImage(p) || webFallbackImage(p);
+  document.getElementById('pmImage').innerHTML = `<img src="${img}" alt="${p.name}" onerror="this.onerror=null;this.src='${webFallbackImage(p)}'">`;
+  document.getElementById('pmCategory').textContent = cat?.name || '';
+  document.getElementById('pmName').textContent = p.name;
+  document.getElementById('pmDesc').textContent = p.desc || '';
+  document.getElementById('pmPrice').textContent = fmt(p.price) + ' RWF';
+  const pay = DB.getPayment();
+  document.getElementById('pmMerchant').textContent = pay.merchant || '9911119';
+  document.getElementById('pmCode').textContent = `*182*8*1*${pay.merchant || '9911119'}*${p.price}#`;
+  document.getElementById('pmRecipient').textContent = pay.recipient || 'MINADEF';
+  const av = document.getElementById('pmAvail');
+  if(p.avail){ av.textContent = '✓ Available'; av.className = 'chip px-3 py-1.5 text-xs font-bold text-green-400 border-green-500/30'; }
+  else { av.textContent = '✕ Unavailable'; av.className = 'chip px-3 py-1.5 text-xs font-bold text-red-400 border-red-500/30'; }
+  document.getElementById('pmFeaturedBadge').classList.toggle('hidden', !p.feat);
+  const btn = document.getElementById('pmAddBtn');
+  btn.disabled = !p.avail;
+  btn.textContent = p.avail ? 'Add to Calculator' : 'Currently Unavailable';
+  btn.className = p.avail ? 'btn-gold w-full mt-4 py-3 rounded-xl' : 'btn-ghost w-full mt-4 py-3 rounded-xl opacity-50 cursor-not-allowed';
+  const m = document.getElementById('productModal');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+function closeProductModal(){
+  const m = document.getElementById('productModal');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+function addToCalcFromModal(){
+  if(!state.currentProduct || !state.currentProduct.avail) return;
+  const id = state.currentProduct.id;
+  state.calc[id] = (state.calc[id]||0) + 1;
+  DB.saveCalc(state.calc);
+  updateCalcBadge();
+  showToast('✓ Added to calculator');
+  closeProductModal();
+}
+
+function getCurrentProductPaymentCode(){
+  const pay = DB.getPayment();
+  const total = state.currentProduct?.price || 0;
+  return `*182*8*1*${pay.merchant || '9911119'}*${total}#`;
+}
+
+function copyProductCode(){
+  if(!state.currentProduct){ showToast('Open a product first'); return; }
+  navigator.clipboard.writeText(getCurrentProductPaymentCode())
+    .then(()=>showToast('✓ Product code copied'));
+}
+
+function copyProductMerchant(){
+  const pay = DB.getPayment();
+  navigator.clipboard.writeText(pay.merchant || '9911119')
+    .then(()=>showToast('✓ Merchant copied'));
+}
+
+/* =========================================================
+   CALCULATOR
+   ========================================================= */
+function openCalculator(){
+  state.calc = DB.getCalc();
+  renderCalculator();
+  const m = document.getElementById('calcModal');
+  m.classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+function closeCalculator(){
+  const m = document.getElementById('calcModal');
+  m.classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+function renderCalculator(){
+  const prods = DB.getProducts().filter(p=>p.avail);
+  const cats = DB.getCategories().filter(c=>c.active).sort((a,b)=>a.order-b.order);
+  const container = document.getElementById('calcProducts');
+  container.innerHTML = '';
+
+  cats.forEach(c=>{
+    const items = prods.filter(p=>p.catId===c.id).sort((a,b)=>a.order-b.order);
+    if(items.length===0) return;
+    const section = document.createElement('div');
+    section.className = 'mb-5';
+    section.innerHTML = `<div class="text-xs gold font-bold tracking-widest uppercase mb-2">${c.icon||''} ${c.name}</div>`;
+    const list = document.createElement('div');
+    list.className = 'space-y-2';
+    items.forEach(p=>{
+      const qty = state.calc[p.id] || 0;
+      const row = document.createElement('div');
+      row.className = 'card-soft p-3 flex items-center gap-3';
+      row.innerHTML = `
+        <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0 bg-black/40">
+          ${p.img?`<img src="${p.img}" class="w-full h-full object-cover">`:`<div class="w-full h-full flex items-center justify-center text-xl">🍽️</div>`}
+        </div>
+        <div class="flex-1 min-w-0">
+          <div class="font-bold text-sm truncate">${p.name}</div>
+          <div class="gold font-bold text-xs">${fmt(p.price)} RWF</div>
+        </div>
+        <div class="flex items-center gap-1">
+          <button class="qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+          <div class="qty-val">${qty}</div>
+          <button class="qty-btn" onclick="changeQty('${p.id}',1)">+</button>
+        </div>
+      `;
+      list.appendChild(row);
+    });
+    section.appendChild(list);
+    container.appendChild(section);
+  });
+
+  updateCalcSummary();
+}
+
+function changeQty(id, delta){
+  const current = state.calc[id] || 0;
+  const next = Math.max(0, current + delta);
+  if(next===0) delete state.calc[id];
+  else state.calc[id] = next;
+  DB.saveCalc(state.calc);
+  updateCalcBadge();
+  // Update only the affected row for performance
+  const qtyEl = event?.target?.parentElement?.querySelector('.qty-val');
+  if(qtyEl) qtyEl.textContent = next;
+  updateCalcSummary();
+}
+
+function updateCalcSummary(){
+  const prods = DB.getProducts();
+  const items = document.getElementById('calcItems');
+  const totalEl = document.getElementById('calcTotal');
+  const entries = Object.entries(state.calc);
+  if(entries.length===0){
+    items.innerHTML = '<div class="text-xs text-muted text-center py-2">No items selected</div>';
+    totalEl.textContent = '0 RWF';
+    return;
+  }
+  let total = 0;
+  items.innerHTML = '';
+  entries.forEach(([id,qty])=>{
+    const p = prods.find(x=>x.id===id);
+    if(!p) return;
+    const sub = p.price * qty;
+    total += sub;
+    const row = document.createElement('div');
+    row.className = 'flex items-center justify-between text-xs';
+    row.innerHTML = `<span class="truncate pr-2">${p.name} × ${qty}</span><span class="gold font-bold flex-shrink-0">${fmt(sub)} RWF</span>`;
+    items.appendChild(row);
+  });
+  totalEl.textContent = fmt(total) + ' RWF';
+}
+
+function clearCalc(){
+  if(!confirm('Clear all items from calculator?')) return;
+  state.calc = {};
+  DB.saveCalc(state.calc);
+  updateCalcBadge();
+  renderCalculator();
+}
+
+function updateCalcBadge(){
+  const count = Object.values(state.calc).reduce((a,b)=>a+b,0);
+  const badge = document.getElementById('calcBadge');
+  if(count>0){ badge.textContent = count; badge.classList.remove('hidden'); }
+  else badge.classList.add('hidden');
+}
+
+function calculateTotal(){
+  const prods = DB.getProducts();
+  let total = 0;
+  Object.entries(state.calc).forEach(([id,qty])=>{
+    const p = prods.find(x=>x.id===id);
+    if(p) total += p.price * qty;
+  });
+  if(total===0){ showToast('Add items first'); return; }
+  showPaymentResult(total);
+}
+
+function showPaymentResult(total){
+  const pay = DB.getPayment();
+  const code = `*182*8*1*${pay.merchant}*${total}#`;
+  document.getElementById('payAmount').textContent = fmt(total) + ' RWF';
+  document.getElementById('payCode').textContent = code;
+  document.getElementById('payRecipient').textContent = pay.recipient;
+  const m = document.getElementById('paymentModal');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+
+function closePayment(){
+  const m = document.getElementById('paymentModal');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+
+function copyCode(){
+  const code = document.getElementById('payCode').textContent;
+  navigator.clipboard.writeText(code).then(()=>showToast('✓ Payment code copied!'));
+}
+function copyAmount(){
+  const amt = document.getElementById('payAmount').textContent;
+  navigator.clipboard.writeText(amt).then(()=>showToast('✓ Amount copied!'));
+}
+
+/* =========================================================
+   TOAST
+   ========================================================= */
+let toastTimer;
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(()=>t.classList.remove('show'), 2200);
+}
+
+/* =========================================================
+   ADMIN
+   ========================================================= */
+function openAdmin(){
+  document.getElementById('adminLogin').classList.remove('hidden');
+  document.getElementById('adminLogin').classList.add('flex');
+  setTimeout(()=>document.getElementById('adminPass').focus(),100);
+}
+function closeAdminLogin(){
+  document.getElementById('adminLogin').classList.add('hidden');
+  document.getElementById('adminLogin').classList.remove('flex');
+  document.getElementById('adminPass').value = '';
+}
+function adminLoginSubmit(){
+  const r = DB.getRestaurant();
+  const pass = document.getElementById('adminPass').value;
+  if(pass === (r.password || 'kwizera2026')){
+    state.adminAuth = true;
+    closeAdminLogin();
+    openAdminApp();
+  } else {
+    showToast('✕ Wrong password');
+  }
+}
+function adminLogout(){
+  state.adminAuth = false;
+  document.getElementById('adminApp').classList.add('hidden');
+  document.body.style.overflow = '';
+  showToast('Logged out');
+}
+function exportData(){
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    products: DB.getProducts(),
+    categories: DB.getCategories(),
+    restaurant: DB.getRestaurant(),
+    payment: DB.getPayment(),
+    calc: DB.getCalc()
+  };
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `menu-export-${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast('✓ Export downloaded');
+}
+function importData(event){
+  const file = event.target.files?.[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try{
+      const data = JSON.parse(e.target.result);
+      if(Array.isArray(data.products)) DB.saveProducts(data.products);
+      if(Array.isArray(data.categories)) DB.saveCategories(data.categories);
+      if(data.restaurant) DB.saveRestaurant(data.restaurant);
+      if(data.payment) DB.savePayment(data.payment);
+      if(data.calc) DB.saveCalc(data.calc);
+      renderAll();
+      if(state.adminAuth){
+        switchAdminTab(state.adminTab || 'dashboard');
+      }
+      showToast('✓ Import loaded');
+    } catch(err){
+      showToast('✕ Invalid export file');
+    } finally {
+      event.target.value = '';
+    }
+  };
+  reader.readAsText(file);
+}
+function openAdminApp(){
+  document.getElementById('adminApp').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+  switchAdminTab('dashboard');
+  renderAdminDashboard();
+}
+function showCustomerMenu(){
+  document.getElementById('adminApp').classList.add('hidden');
+  document.body.style.overflow = '';
+  renderAll();
+}
+
+function switchAdminTab(tab){
+  state.adminTab = tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===tab));
+  document.querySelectorAll('.admin-tab').forEach(t=>t.classList.add('hidden'));
+  document.getElementById('tab-'+tab).classList.remove('hidden');
+  if(tab==='dashboard') renderAdminDashboard();
+  if(tab==='products') renderAdminProducts();
+  if(tab==='categories') renderAdminCategories();
+  if(tab==='restaurant') loadRestaurantForm();
+  if(tab==='payment') loadPaymentForm();
+  if(tab==='qr') renderQRTab();
+}
+
+function renderAdminDashboard(){
+  const prods = DB.getProducts();
+  const cats = DB.getCategories();
+  document.getElementById('statProducts').textContent = prods.length;
+  document.getElementById('statCategories').textContent = cats.length;
+  document.getElementById('statFeatured').textContent = prods.filter(p=>p.feat).length;
+  document.getElementById('statAvailable').textContent = prods.filter(p=>p.avail).length;
+  const recent = document.getElementById('recentProducts');
+  const last5 = [...prods].sort((a,b)=>(b.order||0)-(a.order||0)).slice(0,5);
+  if(last5.length===0){ recent.innerHTML = '<div class="text-xs text-muted">No products yet</div>'; return; }
+  recent.innerHTML = '';
+  last5.forEach(p=>{
+    const cat = cats.find(c=>c.id===p.catId);
+    const row = document.createElement('div');
+    row.className = 'flex items-center gap-3 p-2 rounded-lg hover:bg-black/30';
+    row.innerHTML = `
+      <div class="w-10 h-10 rounded-lg overflow-hidden bg-black/40 flex-shrink-0">
+        ${resolveProductImage(p)?`<img src="${resolveProductImage(p)}" class="w-full h-full object-cover">`:`<div class="w-full h-full flex items-center justify-center">🍽️</div>`}
+      </div>
+      <div class="flex-1 min-w-0">
+        <div class="font-bold text-sm truncate">${p.name}</div>
+        <div class="text-[10px] text-muted">${cat?.name||''} • ${fmt(p.price)} RWF</div>
+      </div>
+      <div class="text-[10px] gold font-bold">${p.feat?'⭐':''}${p.avail?'✓':'✕'}</div>
+    `;
+    recent.appendChild(row);
+  });
+}
+
+/* ---------- ADMIN PRODUCTS ---------- */
+function renderAdminProducts(){
+  const q = (document.getElementById('adminProductSearch')?.value||'').toLowerCase();
+  const prods = DB.getProducts().filter(p=>!q || p.name.toLowerCase().includes(q));
+  const cats = DB.getCategories();
+  const list = document.getElementById('adminProductsList');
+  if(prods.length===0){ list.innerHTML = '<div class="text-center text-muted py-10">No products yet. Add your first product!</div>'; return; }
+  prods.sort((a,b)=>(a.order||0)-(b.order||0));
+  list.innerHTML = '';
+  prods.forEach(p=>{
+    const cat = cats.find(c=>c.id===p.catId);
+    const row = document.createElement('div');
+    row.className = 'admin-row';
+    row.innerHTML = `
+      <div class="w-12 h-12 rounded-lg overflow-hidden bg-black/40">
+        ${resolveProductImage(p)?`<img src="${resolveProductImage(p)}" class="w-full h-full object-cover">`:`<div class="w-full h-full flex items-center justify-center">🍽️</div>`}
+      </div>
+      <div class="min-w-0">
+        <div class="font-bold text-sm truncate">${p.name} ${p.feat?'<span class="gold text-[10px]">⭐</span>':''}</div>
+        <div class="text-[10px] text-muted truncate">${cat?.name||'—'} • ${fmt(p.price)} RWF</div>
+      </div>
+      <div class="hide-sm flex items-center gap-1">
+        <div class="switch ${p.avail?'on':''}" onclick="toggleProdAvail('${p.id}')"></div>
+      </div>
+      <div class="flex gap-1">
+        <button class="admin-icon-btn" onclick="openProductForm('${p.id}')" title="Edit">✏️</button>
+        <button class="admin-icon-btn" onclick="duplicateProduct('${p.id}')" title="Duplicate">📋</button>
+        <button class="admin-icon-btn danger" onclick="deleteProduct('${p.id}')" title="Delete">🗑️</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function toggleProdAvail(id){
+  const prods = DB.getProducts();
+  const p = prods.find(x=>x.id===id);
+  if(!p) return;
+  p.avail = !p.avail;
+  DB.saveProducts(prods);
+  renderAdminProducts();
+  renderAll();
+}
+
+function openProductForm(id){
+  const cats = DB.getCategories();
+  const sel = document.getElementById('pfCategory');
+  sel.innerHTML = cats.map(c=>`<option value="${c.id}">${c.icon||''} ${c.name}</option>`).join('');
+  if(id){
+    const p = DB.getProducts().find(x=>x.id===id);
+    if(!p) return;
+    document.getElementById('pfTitle').textContent = 'Edit Product';
+    document.getElementById('pfId').value = p.id;
+    document.getElementById('pfName').value = p.name;
+    document.getElementById('pfCategory').value = p.catId;
+    document.getElementById('pfDesc').value = p.desc || '';
+    document.getElementById('pfPrice').value = p.price;
+    document.getElementById('pfAvail').classList.toggle('on', p.avail);
+    document.getElementById('pfFeat').classList.toggle('on', p.feat);
+    const prev = document.getElementById('pfImagePreview');
+    const previewImg = resolveProductImage(p);
+    prev.innerHTML = previewImg?`<img src="${previewImg}">`:`<span class="img-placeholder">📷</span>`;
+    prev.dataset.img = previewImg || '';
+  } else {
+    document.getElementById('pfTitle').textContent = 'Add Product';
+    document.getElementById('pfId').value = '';
+    document.getElementById('pfName').value = '';
+    document.getElementById('pfDesc').value = '';
+    document.getElementById('pfPrice').value = '';
+    document.getElementById('pfAvail').classList.add('on');
+    document.getElementById('pfFeat').classList.remove('on');
+    const prev = document.getElementById('pfImagePreview');
+    prev.innerHTML = `<span class="img-placeholder">📷</span>`;
+    prev.dataset.img = '';
+  }
+  const m = document.getElementById('productFormModal');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+function closeProductForm(){
+  const m = document.getElementById('productFormModal');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+
+function handleImageUpload(e){
+  const file = e.target.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024){ showToast('Image too large (max 2MB)'); return; }
+  const reader = new FileReader();
+  reader.onload = ev=>{
+    const prev = document.getElementById('pfImagePreview');
+    prev.innerHTML = `<img src="${ev.target.result}">`;
+    prev.dataset.img = ev.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+function clearImage(){
+  const prev = document.getElementById('pfImagePreview');
+  prev.innerHTML = `<span class="img-placeholder">📷</span>`;
+  prev.dataset.img = '';
+  document.getElementById('pfImage').value = '';
+}
+
+function saveProduct(){
+  const id = document.getElementById('pfId').value;
+  const name = document.getElementById('pfName').value.trim();
+  const catId = document.getElementById('pfCategory').value;
+  const desc = document.getElementById('pfDesc').value.trim();
+  const price = parseFloat(document.getElementById('pfPrice').value);
+  const avail = document.getElementById('pfAvail').classList.contains('on');
+  const feat = document.getElementById('pfFeat').classList.contains('on');
+  const img = document.getElementById('pfImagePreview').dataset.img || '';
+  if(!name){ showToast('Name required'); return; }
+  if(isNaN(price) || price<0){ showToast('Valid price required'); return; }
+  const prods = DB.getProducts();
+  if(id){
+    const p = prods.find(x=>x.id===id);
+    Object.assign(p, {name, catId, desc, price, avail, feat, img});
+  } else {
+    prods.push({id:uid(), name, catId, desc, price, avail, feat, img, order:prods.length+1});
+  }
+  DB.saveProducts(prods);
+  closeProductForm();
+  renderAdminProducts();
+  renderAdminDashboard();
+  renderAll();
+  showToast('✓ Product saved');
+}
+
+function duplicateProduct(id){
+  const prods = DB.getProducts();
+  const p = prods.find(x=>x.id===id);
+  if(!p) return;
+  const copy = {...p, id:uid(), name:p.name+' (copy)', order:prods.length+1};
+  prods.push(copy);
+  DB.saveProducts(prods);
+  renderAdminProducts();
+  renderAll();
+  showToast('✓ Duplicated');
+}
+
+function deleteProduct(id){
+  if(!confirm('Delete this product?')) return;
+  const prods = DB.getProducts().filter(p=>p.id!==id);
+  DB.saveProducts(prods);
+  renderAdminProducts();
+  renderAdminDashboard();
+  renderAll();
+  showToast('✓ Deleted');
+}
+
+/* ---------- ADMIN CATEGORIES ---------- */
+function renderAdminCategories(){
+  const cats = DB.getCategories().sort((a,b)=>a.order-b.order);
+  const list = document.getElementById('adminCategoriesList');
+  if(cats.length===0){ list.innerHTML = '<div class="text-center text-muted py-10">No categories yet</div>'; return; }
+  list.innerHTML = '';
+  cats.forEach((c,i)=>{
+    const row = document.createElement('div');
+    row.className = 'admin-row';
+    row.innerHTML = `
+      <div class="w-12 h-12 rounded-lg bg-black/40 flex items-center justify-center text-2xl">${c.icon||'📁'}</div>
+      <div class="min-w-0">
+        <div class="font-bold text-sm truncate">${c.name}</div>
+        <div class="text-[10px] text-muted">Order: ${c.order}</div>
+      </div>
+      <div class="hide-sm flex items-center gap-1">
+        <button class="admin-icon-btn" onclick="moveCat('${c.id}',-1)" ${i===0?'disabled style="opacity:.3"':''}>▲</button>
+        <button class="admin-icon-btn" onclick="moveCat('${c.id}',1)" ${i===cats.length-1?'disabled style="opacity:.3"':''}>▼</button>
+      </div>
+      <div class="flex gap-1">
+        <div class="switch ${c.active?'on':''}" onclick="toggleCatActive('${c.id}')"></div>
+        <button class="admin-icon-btn" onclick="openCategoryForm('${c.id}')">✏️</button>
+        <button class="admin-icon-btn danger" onclick="deleteCategory('${c.id}')">🗑️</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
+
+function moveCat(id, dir){
+  const cats = DB.getCategories().sort((a,b)=>a.order-b.order);
+  const idx = cats.findIndex(c=>c.id===id);
+  const newIdx = idx + dir;
+  if(newIdx<0 || newIdx>=cats.length) return;
+  const tmp = cats[idx].order;
+  cats[idx].order = cats[newIdx].order;
+  cats[newIdx].order = tmp;
+  DB.saveCategories(cats);
+  renderAdminCategories();
+  renderAll();
+}
+function toggleCatActive(id){
+  const cats = DB.getCategories();
+  const c = cats.find(x=>x.id===id);
+  if(!c) return;
+  c.active = !c.active;
+  DB.saveCategories(cats);
+  renderAdminCategories();
+  renderAll();
+}
+
+function openCategoryForm(id){
+  if(id){
+    const c = DB.getCategories().find(x=>x.id===id);
+    if(!c) return;
+    document.getElementById('cfTitle').textContent = 'Edit Category';
+    document.getElementById('cfId').value = c.id;
+    document.getElementById('cfName').value = c.name;
+    document.getElementById('cfIcon').value = c.icon || '';
+    document.getElementById('cfActive').classList.toggle('on', c.active);
+  } else {
+    document.getElementById('cfTitle').textContent = 'Add Category';
+    document.getElementById('cfId').value = '';
+    document.getElementById('cfName').value = '';
+    document.getElementById('cfIcon').value = '';
+    document.getElementById('cfActive').classList.add('on');
+  }
+  const m = document.getElementById('categoryFormModal');
+  m.classList.remove('hidden');
+  m.classList.add('flex');
+}
+function closeCategoryForm(){
+  const m = document.getElementById('categoryFormModal');
+  m.classList.add('hidden');
+  m.classList.remove('flex');
+}
+function saveCategory(){
+  const id = document.getElementById('cfId').value;
+  const name = document.getElementById('cfName').value.trim();
+  const icon = document.getElementById('cfIcon').value.trim();
+  const active = document.getElementById('cfActive').classList.contains('on');
+  if(!name){ showToast('Name required'); return; }
+  const cats = DB.getCategories();
+  if(id){
+    const c = cats.find(x=>x.id===id);
+    Object.assign(c, {name, icon, active});
+  } else {
+    const maxOrder = Math.max(0, ...cats.map(c=>c.order||0));
+    cats.push({id:'c_'+Date.now(), name, icon, active, order:maxOrder+1});
+  }
+  DB.saveCategories(cats);
+  closeCategoryForm();
+  renderAdminCategories();
+  renderAll();
+  showToast('✓ Category saved');
+}
+function deleteCategory(id){
+  const prods = DB.getProducts().filter(p=>p.catId===id);
+  if(prods.length>0){
+    if(!confirm(`This category has ${prods.length} products. They will become uncategorized. Continue?`)) return;
+  } else {
+    if(!confirm('Delete this category?')) return;
+  }
+  const cats = DB.getCategories().filter(c=>c.id!==id);
+  DB.saveCategories(cats);
+  renderAdminCategories();
+  renderAll();
+  showToast('✓ Deleted');
+}
+
+/* ---------- RESTAURANT FORM ---------- */
+function loadRestaurantForm(){
+  const r = DB.getRestaurant();
+  document.getElementById('restName').value = r.name || '';
+  document.getElementById('restLogo').value = r.logo || '';
+  document.getElementById('restWelcome').value = r.welcome || '';
+  document.getElementById('restPhone').value = r.phone || '';
+  document.getElementById('restWhatsapp').value = r.whatsapp || '';
+  document.getElementById('restEmail').value = r.email || '';
+  document.getElementById('restFooter').value = r.footer || '';
+  document.getElementById('restPassword').value = r.password || '';
+}
+function saveRestaurant(){
+  const r = {
+    name: document.getElementById('restName').value.trim(),
+    logo: document.getElementById('restLogo').value.trim() || 'OC',
+    welcome: document.getElementById('restWelcome').value.trim(),
+    phone: document.getElementById('restPhone').value.trim(),
+    whatsapp: document.getElementById('restWhatsapp').value.trim(),
+    email: document.getElementById('restEmail').value.trim(),
+    footer: document.getElementById('restFooter').value.trim() || '© 2026 kwizera. Web created by kwizera. Help line 0781845528',
+    password: document.getElementById('restPassword').value.trim() || 'kwizera2026'
+  };
+  DB.saveRestaurant(r);
+  renderAll();
+  showToast('✓ Restaurant info saved');
+}
+
+/* ---------- PAYMENT FORM ---------- */
+function loadPaymentForm(){
+  const p = DB.getPayment();
+  document.getElementById('payMethod').value = p.method || 'Mobile Money';
+  document.getElementById('payMerchant').value = p.merchant || '9911119';
+  document.getElementById('payRecipient').value = p.recipient || 'MINADEF';
+  updatePayPreview();
+  ['payMerchant','payRecipient'].forEach(id=>{
+    document.getElementById(id).oninput = updatePayPreview;
+  });
+}
+function updatePayPreview(){
+  const m = document.getElementById('payMerchant').value.trim() || '9911119';
+  document.getElementById('payPreview').textContent = `*182*8*1*${m}*AMOUNT#`;
+}
+function savePayment(){
+  const p = {
+    method: document.getElementById('payMethod').value.trim(),
+    merchant: document.getElementById('payMerchant').value.trim(),
+    recipient: document.getElementById('payRecipient').value.trim()
+  };
+  if(!p.merchant){ showToast('Merchant code required'); return; }
+  if(!p.recipient){ showToast('Recipient name required'); return; }
+  DB.savePayment(p);
+  showToast('✓ Payment settings saved');
+}
+
+/* ---------- QR CODE ---------- */
+function renderQRTab(){
+  const input = document.getElementById('qrUrl');
+  if(!input.value) input.value = window.location.href.split('#')[0].split('?')[0];
+  renderQR();
+}
+function renderQR(){
+  const url = document.getElementById('qrUrl').value.trim() || window.location.href;
+  const container = document.getElementById('qrCode');
+  container.innerHTML = '';
+  new QRCode(container, {
+    text: url,
+    width: 200,
+    height: 200,
+    colorDark: '#0a0a0b',
+    colorLight: '#ffffff',
+    correctLevel: QRCode.CorrectLevel.H
+  });
+}
+function downloadQR(){
+  const canvas = document.querySelector('#qrCode canvas');
+  if(!canvas){ showToast('Generate QR first'); return; }
+  const url = canvas.toDataURL('image/png');
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'officers-canteen-menu-qr.png';
+  a.click();
+  showToast('✓ QR downloaded');
+}
+
+/* =========================================================
+   INIT
+   ========================================================= */
+async function boot(){
+  const loaded = await loadMenuDataFile();
+  if(!loaded) DB.init();
+  state.calc = DB.getCalc();
+  renderAll();
+}
+boot();
+
+// Close modals on backdrop click
+['productModal','paymentModal','productFormModal','categoryFormModal'].forEach(id=>{
+  document.getElementById(id).addEventListener('click', e=>{
+    if(e.target.id===id){
+      e.currentTarget.classList.add('hidden');
+      e.currentTarget.classList.remove('flex');
+    }
+  });
+});
+document.getElementById('calcModal').addEventListener('click', e=>{
+  if(e.target.id==='calcModal') closeCalculator();
+});
+document.getElementById('adminLogin').addEventListener('click', e=>{
+  if(e.target.id==='adminLogin') closeAdminLogin();
+});
+
+// Keyboard: ESC closes modals
+document.addEventListener('keydown', e=>{
+  if(e.key==='Escape'){
+    closeProductModal();
+    closePayment();
+    closeProductForm();
+    closeCategoryForm();
+    closeCalculator();
+    closeAdminLogin();
+  }
+});
+</script>
+</body>
+</html>
